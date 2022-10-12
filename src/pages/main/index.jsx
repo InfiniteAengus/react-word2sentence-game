@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 import sampleData from 'src/data/mockup.json';
-import { PROBLEM_COUNT } from 'src/config/global';
+import { APP_NAME, PROBLEM_COUNT } from 'src/config/global';
 import { shuffle } from 'src/utils/helper';
 
 import { ReactComponent as SuccessIcon } from 'src/assets/success.svg';
@@ -22,10 +22,14 @@ const MainPage = () => {
     responding: false,
     started: false,
     finished: false,
+    paused: false,
     totalTimer: 0,
     curTimer: 0,
   });
   const [timerId, setTimerId] = useState(null);
+  const gameStatusRef = useRef(null);
+
+  gameStatusRef.current = gameStatus;
 
   const sentence2words = useCallback((sentence) => {
     return sentence.split(' ');
@@ -42,6 +46,8 @@ const MainPage = () => {
     setGameStatus((prev) => ({
       ...prev,
       started: true,
+      paused: false,
+      finished: false,
       totalTimer: -totalTime,
       curTimer: -randomSentences[0].time,
     }));
@@ -52,15 +58,13 @@ const MainPage = () => {
       clearInterval(timerId);
     }
 
-    const tId = setInterval(() => {
-      setGameStatus((prev) => ({
-        ...prev,
-        totalTimer: prev.totalTimer + 1,
-        curTimer: prev.curTimer + 1,
-      }));
-    }, 1000);
+    const tId = setInterval(() => intervalHander(), 1000);
 
     setTimerId(tId);
+  };
+
+  const handlePauseGame = () => {
+    setGameStatus((prev) => ({ ...prev, paused: !prev.paused }));
   };
 
   const handleWordClick = (index) => {
@@ -77,7 +81,8 @@ const MainPage = () => {
     if (!exact) {
       setGameStatus((prev) => ({ ...prev, responding: true }));
       setTimeout(() => {
-        revealSentence(sentences, curProblemId);
+        setCurProblemId(0);
+        revealSentence(sentences, 0);
         setGameStatus((prev) => ({ ...prev, responding: false }));
       }, 2000);
     }
@@ -117,6 +122,17 @@ const MainPage = () => {
     }
   };
 
+  const intervalHander = () => {
+    if (gameStatusRef.current.paused) {
+      return;
+    }
+    setGameStatus((prev) => ({
+      ...prev,
+      totalTimer: prev.totalTimer + 1,
+      curTimer: prev.curTimer + 1,
+    }));
+  };
+
   const loadSentences = () => {
     const temp = shuffle(sampleData, PROBLEM_COUNT);
 
@@ -141,76 +157,103 @@ const MainPage = () => {
   };
 
   return (
-    <div className='container'>
-      <h2>Quote Master</h2>
+    <main>
+      <div className='container'>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <h2>{APP_NAME}</h2>
+          {gameStatus.started && (
+            <div style={{ display: 'flex', gap: '20px', marginLeft: 'auto' }}>
+              <button onClick={handlePauseGame}>
+                {gameStatus.paused ? 'Resume' : 'Pause'}
+              </button>
+              <button onClick={handleStartGame}>Reset</button>
+            </div>
+          )}
+        </div>
 
-      {gameStatus.started ? (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <h4>{gameStatus.totalTimer}</h4>
-            <h4>{gameStatus.curTimer}</h4>
-          </div>
+        {gameStatus.started ? (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <h4>{gameStatus.totalTimer}</h4>
+              <h4>{gameStatus.curTimer}</h4>
+            </div>
 
-          {gameStatus.finished ? (
-            <>
-              <h1>Great job! Come back tomorrow for a fresh 12!</h1>
-            </>
-          ) : (
-            <>
-              <div className='made-sentence'>
-                <p>
-                  {userAnswer.selectedArray.map((word, index) => (
-                    <span
-                      style={{ color: word.exact ? 'black' : 'red' }}
-                      key={`selected-word-${index}`}
-                    >
-                      {word.word} &nbsp;
-                    </span>
-                  ))}
-                </p>
-              </div>
-
-              <div className='game-status'>
-                <h3>
-                  {curProblemId + 1}/{PROBLEM_COUNT}
-                </h3>
-                <div className='result-icon-wrapper'>
-                  {Array(PROBLEM_COUNT)
-                    .fill(0)
-                    .map((_, ind) => (
-                      <span className='result-icon' key={`result-icon-${ind}`}>
-                        {ind < curProblemId ? <SuccessIcon /> : <FailedIcon />}
+            {gameStatus.finished ? (
+              <>
+                <h1>Great job! Come back tomorrow for a fresh 12!</h1>
+              </>
+            ) : (
+              <div
+                style={{ position: 'relative' }}
+                className={gameStatus.responding ? 'selected-failed' : ''}
+              >
+                {gameStatus.paused && (
+                  <div className='paused-background'>
+                    <h1>Paused</h1>
+                  </div>
+                )}
+                <div className='made-sentence'>
+                  <p>
+                    {userAnswer.selectedArray.map((word, index) => (
+                      <span
+                        style={{ color: word.exact ? 'black' : 'red' }}
+                        key={`selected-word-${index}`}
+                      >
+                        {word.word} &nbsp;
                       </span>
                     ))}
+                  </p>
                 </div>
-                <h4>{`#${curProblemId + 1} - beat ${
-                  sentences[curProblemId]?.time
-                } seconds!`}</h4>
-              </div>
 
-              <div className='words-wrapper'>
-                {userAnswer.wordArray.map((word, index) => (
-                  <div key={`word-item-${index}`} className='word-item'>
-                    {!word.used ? (
-                      <span onClick={() => handleWordClick(index)}>
-                        {word.word}
-                      </span>
-                    ) : (
-                      <>&nbsp;</>
-                    )}
+                <div className='game-status'>
+                  <h3>
+                    {curProblemId + 1}/{PROBLEM_COUNT}
+                  </h3>
+                  <div className='result-icon-wrapper'>
+                    {Array(PROBLEM_COUNT)
+                      .fill(0)
+                      .map((_, ind) => (
+                        <span
+                          className='result-icon'
+                          key={`result-icon-${ind}`}
+                        >
+                          {ind < curProblemId ? (
+                            <SuccessIcon />
+                          ) : (
+                            <FailedIcon />
+                          )}
+                        </span>
+                      ))}
                   </div>
-                ))}
+                  <h4>{`#${curProblemId + 1} - beat ${
+                    sentences[curProblemId]?.time
+                  } seconds!`}</h4>
+                </div>
+
+                <div className='words-wrapper'>
+                  {userAnswer.wordArray.map((word, index) => (
+                    <div key={`word-item-${index}`} className='word-item'>
+                      {!word.used ? (
+                        <span onClick={() => handleWordClick(index)}>
+                          {word.word}
+                        </span>
+                      ) : (
+                        <>&nbsp;</>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <h1>Descramble {PROBLEM_COUNT} quotes!</h1>
-          <button onClick={handleStartGame}>Begin</button>
-        </>
-      )}
-    </div>
+            )}
+          </>
+        ) : (
+          <>
+            <h1>Descramble {PROBLEM_COUNT} quotes!</h1>
+            <button onClick={handleStartGame}>Begin</button>
+          </>
+        )}
+      </div>
+    </main>
   );
 };
 

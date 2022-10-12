@@ -1,10 +1,17 @@
 import './App.css';
-import './styles/global.css'
+import './styles/styles.css'
+
 import MainPage from './pages/main';
+import Header from './layout/header';
+import Footer from './layout/footer';
 
 function App() {
   return (
-    <MainPage />
+    <>
+      <Header />
+      <MainPage />
+      <Footer />
+    </>
   );
 }
 

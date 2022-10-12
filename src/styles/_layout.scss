@@ -1,0 +1,29 @@
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  height: 70px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  padding: 16px 30px 16px 30px;
+  box-sizing: border-box;
+}
+
+main {
+  flex-grow: 1;
+}
+
+footer {
+  margin-top: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  padding: 16px 30px 16px 30px;
+  box-sizing: border-box;
+
+  font-size: 14px;
+}
