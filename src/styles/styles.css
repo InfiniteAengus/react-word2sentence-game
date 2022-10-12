@@ -43,6 +43,7 @@ header {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
+  z-index: 200;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -55,6 +56,7 @@ header {
   padding: 16px 30px 16px 30px;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
+  background: white;
 }
 
 main {
@@ -68,8 +70,12 @@ footer {
   -webkit-box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
           box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   padding: 16px 30px 16px 30px;
+  height: 50px;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
+  background: white;
+  position: relative;
+  z-index: 100;
   font-size: 14px;
 }
 /*# sourceMappingURL=styles.css.map */
