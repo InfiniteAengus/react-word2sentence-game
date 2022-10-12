@@ -1,7 +1,13 @@
 import React, { useCallback, useRef, useState } from 'react';
 
 import sampleData from 'src/data/mockup.json';
-import { APP_NAME, PROBLEM_COUNT } from 'src/config/global';
+import {
+  APP_NAME,
+  HEADER_TITLE_FONT_SIZE,
+  PROBLEM_COUNT,
+  TIMER_FONT_SIZE,
+  MONTHS,
+} from 'src/config/global';
 import { shuffle } from 'src/utils/helper';
 
 import { ReactComponent as SuccessIcon } from 'src/assets/success.svg';
@@ -161,11 +167,10 @@ const MainPage = () => {
       <div className='container'>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <div>
-            <h1>
-              Hi Jay, This is James. Please contact me at
-              infiniteaengus@gmail.com
-            </h1>
-            <h2>{APP_NAME}</h2>
+            <h2 style={{ fontSize: HEADER_TITLE_FONT_SIZE }}>{APP_NAME}</h2>
+            <h4>{`${
+              MONTHS[new Date().getMonth()]
+            } ${new Date().getDate()}, ${new Date().getFullYear()}`}</h4>
           </div>
           {gameStatus.started && (
             <div style={{ display: 'flex', gap: '20px', marginLeft: 'auto' }}>
@@ -179,7 +184,13 @@ const MainPage = () => {
 
         {gameStatus.started ? (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: TIMER_FONT_SIZE,
+              }}
+            >
               <h4>{gameStatus.totalTimer}</h4>
               <h4>{gameStatus.curTimer}</h4>
             </div>
