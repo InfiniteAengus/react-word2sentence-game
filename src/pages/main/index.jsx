@@ -160,7 +160,13 @@ const MainPage = () => {
     <main>
       <div className='container'>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <h2>{APP_NAME}</h2>
+          <div>
+            <h1>
+              Hi Jay, This is James. Please contact me at
+              infiniteaengus@gmail.com
+            </h1>
+            <h2>{APP_NAME}</h2>
+          </div>
           {gameStatus.started && (
             <div style={{ display: 'flex', gap: '20px', marginLeft: 'auto' }}>
               <button onClick={handlePauseGame}>
